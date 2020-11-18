@@ -1,0 +1,23 @@
+<launch>
+    
+
+<node name="rosserial" pkg = "rosserial_python" type="serial_node.py"
+     output="screen" args="/dev/ttyUSB0"/>
+    
+    <!-- Run aexros robot with rosbots_driver -->
+    <node pkg = "imu9250_ros" type="aexros_imu.py" name = "aexros_imu">
+    </node>
+
+    <!-- Run aexros robot with rosbots_driver -->
+    <node pkg = "rosbots_driver" type="rosbot.py" name = "rosbot" >
+    </node>
+
+    <!-- Odom-IMU Extended Kalman Filter-->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization"> 
+        <remap from="odometry/filtered" to="odom" />
+        <rosparam command="load" file="$(find rosbots_driver)/config/ekf_localization.yaml" />
+    </node>
+
+    
+    
+</launch>

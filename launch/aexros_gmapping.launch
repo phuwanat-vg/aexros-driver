@@ -1,0 +1,9 @@
+<launch>
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  
+      <!--param name="scan" type="string" value="base_scan"/-->
+      <param name="odom_frame" type = "string" value="odom"/>
+      <param name="base_frame" type = "string" value="base_link"/>
+
+    </node>
+</launch>
