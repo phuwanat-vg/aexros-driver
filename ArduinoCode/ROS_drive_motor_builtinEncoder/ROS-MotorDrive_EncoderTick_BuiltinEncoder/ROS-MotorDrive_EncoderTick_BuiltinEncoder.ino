@@ -2,19 +2,24 @@
 #include "Arduino.h"
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Int16.h>
 #include "PinChangeInterrupt.h"
+#include <Servo.h>    //servo addition
 ros::NodeHandle nh;
 
-
-
+int cam_servo_pin = 11;
+Servo cam_servo; //servo add
+int cur_angle;
+int new_angle;
+int pos = 0;
 #define LED_BUILTIN 13
 
 
-#define L_MOTOR_PWM 10
+#define L_MOTOR_PWM 6
 #define L_MOTOR_DIR1 8
 #define L_MOTOR_DIR2 9
 #define R_MOTOR_PWM 5
-#define R_MOTOR_DIR1 6
+#define R_MOTOR_DIR1 10
 #define R_MOTOR_DIR2 7
 
 void turnWheel( const std_msgs::Float32 &wheel_power,
@@ -50,10 +55,31 @@ void leftWheelCb( const std_msgs::Float32 &wheel_power ) {
     turnWheel( wheel_power, L_MOTOR_PWM, L_MOTOR_DIR1, L_MOTOR_DIR2 );
 }
 
+void servoCb( const std_msgs::Int16 &angle)
+{
+  new_angle = angle.data;
+  if(new_angle>(cur_angle-90)){
+    
+  for (pos = cur_angle;pos<new_angle+90; pos+=1 ){
+    cam_servo.write(pos);
+    delay(5);
+  }
+  cur_angle = new_angle+90;
+  }
+  else if((new_angle<(cur_angle-90))&&(new_angle>=-45)){
+  for (pos = cur_angle;pos>new_angle+90; pos-=1 ){
+    cam_servo.write(pos);
+    delay(5);
+  }
+  cur_angle = new_angle+90;
+  }
+}
+
 ros::Subscriber<std_msgs::Float32> sub_right("wheel_power_right",
                                             &rightWheelCb );
 ros::Subscriber<std_msgs::Float32> sub_left("wheel_power_left",
                                            &leftWheelCb );
+ros::Subscriber<std_msgs::Int16> sub_servo("servo", &servoCb);
 
 int r_encoder_pinA = A0; //Interrupt1
 int r_encoder_pinB = A1; //Interrupt0
@@ -63,6 +89,8 @@ int l_encoder_pinB = 3;
 volatile int pulse_l=0;
 volatile int pulse_r=0;
 unsigned long timeold=0;
+
+
 //unsigned int pulse_per_rev=20; //Pulse per revolustion of index disc
 volatile unsigned long rdebounce=0;
 volatile unsigned long ldebounce=0;
@@ -106,6 +134,8 @@ void counter_r()
  
 }
 
+
+
 //std_msgs::UInt32 rpm_left_msg;
 //std_msgs::UInt32 rpm_right_msg; 
 //ros::Publisher rpm_left_pub("left_wheel_rpm", &rpm_left_msg);
@@ -117,8 +147,13 @@ std_msgs::Int32 lticks_msg;
 ros::Publisher rticks_pub("tick_wheel_right", &rticks_msg);
 ros::Publisher lticks_pub("tick_wheel_left", &lticks_msg);
 
+
+
 void setup()
 {
+  cam_servo.attach(cam_servo_pin);
+  cur_angle=90;
+  cam_servo.write(cur_angle);
   // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
@@ -154,19 +189,19 @@ void setup()
   pulse_l = 0;
   pulse_r = 0;
   timeold = 0;
+
   attachInterrupt(digitalPinToInterrupt(2), counter_l,CHANGE);
  
   attachPCINT(digitalPinToPCINT(r_encoder_pinA), counter_r, CHANGE);
 
   
-
-
   
   //ROS setup
   nh.initNode();
   Serial.begin(57600);
   nh.subscribe(sub_right);
   nh.subscribe(sub_left);
+  nh.subscribe(sub_servo);
 
   //nh.advertise(rpm_left_pub);
   //nh.advertise(rpm_right_pub);
@@ -182,7 +217,7 @@ void loop()
   if (millis() - timeold >= 100){  /*Uptade every one second, this will be equal to reading frecuency (Hz).*/
  
    rticks_msg.data = pr;
-   lticks_msg.data = pl;
+   lticks_msg.data = -pl;
 
    //Publish data
    //rpm_left_pub.publish(&rpm_left_msg);
