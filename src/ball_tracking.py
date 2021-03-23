@@ -42,7 +42,7 @@ class BallTrack(object):
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV).astype(np.float)      
 
         lower_yellow = np.array([29,86,86])
-        upper_yellow = np.array([64,255,255])
+        upper_yellow = np.array([330,255,255])
 
         mask = cv2.inRange(hsv,lower_yellow,upper_yellow)  
 
@@ -112,6 +112,7 @@ class BallTrack(object):
       
         cv2.imshow("Image Window",cv_image)
         cv2.imshow("MASK",mask)
+        cv2.imshow("HSV",hsv)
       
    
      
