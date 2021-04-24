@@ -1,0 +1,8 @@
+detect:
+    ball:
+        hue_l: 0
+        hue_h: 25
+        saturation_l: 0
+        saturation_h: 36
+        lightness_l: 180
+        lightness_h: 255

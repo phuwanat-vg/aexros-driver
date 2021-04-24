@@ -9,6 +9,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import CompressedImage
 
+
 class BallTrack(object):
 
     def __init__(self):
@@ -18,6 +19,7 @@ class BallTrack(object):
         self.vel_pub = rospy.Publisher("rosbot/cmd_vel", Twist, queue_size = 5)
         print(" >> Publish the velocity ")
         self.vel = Twist()
+        
 
     def stop(self):
         self.vel.linear.x = 0
@@ -41,13 +43,13 @@ class BallTrack(object):
         #blurred = cv2.GaussianBlur(cv_image, (11,11),0)
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV).astype(np.float)      
 
-        lower_yellow = np.array([29,86,86])
-        upper_yellow = np.array([330,255,255])
+        lower_yellow = np.array([10,86,86])
+        upper_yellow = np.array([63,255,255])
 
         mask = cv2.inRange(hsv,lower_yellow,upper_yellow)  
 
          #find contour
-        mask, contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
        
 
         #erode

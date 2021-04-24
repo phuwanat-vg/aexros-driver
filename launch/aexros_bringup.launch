@@ -1,7 +1,7 @@
 <launch>
   
     <node name="rosserial" pkg = "rosserial_python" type="serial_node.py"
-     output="screen" args="/dev/ttyUSB0"/>
+     output="screen" args="/dev/ttyUSB1"/>
 
     <!-- Run aexros robot with rosbots_driver -->
     <node pkg = "rosbots_driver" type="rosbot.py" name = "rosbot" />
