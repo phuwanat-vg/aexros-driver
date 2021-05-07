@@ -86,23 +86,16 @@ int r_encoder_pinB = A1; //Interrupt0
 int l_encoder_pinA = 2;
 int l_encoder_pinB = 3;
 
-volatile int pulse_l=0;
-volatile int pulse_r=0;
+volatile long pulse_l=0;
+volatile long pulse_r=0;
 unsigned long timeold=0;
 
 
 //unsigned int pulse_per_rev=20; //Pulse per revolustion of index disc
-volatile unsigned long rdebounce=0;
-volatile unsigned long ldebounce=0;
+
 void counter_l()
 {
-  unsigned long m = micros();
-  //if(m-ldebounce > 150){
-    //Update Count
-    //pulse_l=pulse_l+1;
-    //}
-  //ldebounce = m;
-  
+
   if( digitalRead(l_encoder_pinB) == 0 ) {
     if ( digitalRead(l_encoder_pinA) == 0 ) {
       // A fell, B is low
@@ -116,12 +109,7 @@ void counter_l()
 }
 void counter_r()
 {
-  unsigned long m = micros();
-  //if(m-rdebounce > 150){
-    //Update Count
-    //pulse_r=pulse_r+1;
-    //}
-   //rdebounce = m;
+
    if( digitalRead(r_encoder_pinB) == 0 ) {
     if ( digitalRead(r_encoder_pinA) == 0 ) {
       // A fell, B is low
@@ -134,12 +122,6 @@ void counter_r()
  
 }
 
-
-
-//std_msgs::UInt32 rpm_left_msg;
-//std_msgs::UInt32 rpm_right_msg; 
-//ros::Publisher rpm_left_pub("left_wheel_rpm", &rpm_left_msg);
-//ros::Publisher rpm_right_pub("right_wheel_rpm", &rpm_right_msg);
 
 std_msgs::Int32 rticks_msg;
 std_msgs::Int32 lticks_msg;
@@ -180,11 +162,7 @@ void setup()
   pinMode(l_encoder_pinA, INPUT);
   pinMode(l_encoder_pinB, INPUT);
 
-  //Triggers on FALLING (change from HIGH to LOW)
-  // attachInterrupt(0, counter_r, FALLING);
-  // attachInterrupt(1, counter_l, FALLING);
-  //pinMode(2, INPUT);
-  //pinMode(3, INPUT);
+
   //Initialize Value
   pulse_l = 0;
   pulse_r = 0;
@@ -212,19 +190,16 @@ void setup()
 
 void loop()
 {
-  int pl = pulse_l;
-  int pr = pulse_r;
   if (millis() - timeold >= 100){  /*Uptade every one second, this will be equal to reading frecuency (Hz).*/
  
-   rticks_msg.data = pr;
-   lticks_msg.data = -pl;
+   rticks_msg.data = pulse_r;
+   lticks_msg.data = -pulse_l;
 
    //Publish data
-   //rpm_left_pub.publish(&rpm_left_msg);
-   //rpm_right_pub.publish(&rpm_right_msg);
+   
    rticks_pub.publish(&rticks_msg);
    lticks_pub.publish(&lticks_msg);
-   Serial.println(pl);
+
    //reset parameter
    timeold = millis();
    //pulse_r = 0;
@@ -234,9 +209,6 @@ void loop()
    //Serial.print("RPM = ");
    //Serial.println(rpm_r,DEC);
    
-   //Restart the interrupt processing
-   //attachInterrupt(0, counter_r, FALLING);
-   //attachInterrupt(1, counter_l, FALLING);
    }
 
   
