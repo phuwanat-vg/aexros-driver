@@ -114,7 +114,7 @@ class BallTrack(object):
       
         cv2.imshow("Image Window",cv_image)
         cv2.imshow("MASK",mask)
-        cv2.imshow("HSV",hsv)
+        #cv2.imshow("HSV",hsv)
       
    
      

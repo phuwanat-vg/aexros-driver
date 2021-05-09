@@ -14,6 +14,7 @@ from std_msgs.msg import Int16
 class LineFollow(object):
 
     def __init__(self):
+        rospy.on_shutdown(self.shutdownCb)
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber("/raspicam_node/image/compressed",CompressedImage, self.camera_callback)
         print(" << Subscribe image from camera")
@@ -24,37 +25,44 @@ class LineFollow(object):
         print(" >> Publish the servo value")
         self.servo_angle = Int16()
        
-
+    def shutdownCb(self):
+        self.stop()
+        self.vel_pub.publish(self.vel)
+    
     def stop(self):
         self.vel.linear.x = 0
         self.vel.angular.z = 0
         
 
     def drive(self,vx,wz) :
+        
         self.vel.linear.x = vx
         self.vel.angular.z = wz
+        
         
         
     def servo(self,angle):
         self.servo_angle.data = angle 
 
     def camera_callback(self,data):
-        self.servo(-30)
-        
+        self.servo(-40)
+        rate = rospy.Rate(10)
         try:
             cv_image=self.bridge.compressed_imgmsg_to_cv2(data,"bgr8")
+            
             self.vel_pub.publish(self.vel)
             self.servo_pub.publish(self.servo_angle)
         except CvBridgeError as e:
             print(e)
 
+          
         blob_params = None
         #blur to reduce noise
         #blurred = cv2.GaussianBlur(cv_image, (11,11),0)
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV).astype(np.float)      
 
-        lower_color= np.array([0,127,33])
-        upper_color = np.array([360,216,140])
+        lower_color= np.array([0,0,112])
+        upper_color = np.array([43,255,255])
 
         mask = cv2.inRange(hsv,lower_color,upper_color)  
 
@@ -86,9 +94,11 @@ class LineFollow(object):
         cv2.putText(cv_image, ' C ',(int(cx),int(cy)),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2, cv2.LINE_AA)
         
         err_x = cx-center_x
-        wz = -err_x/150
+        wz = -err_x/95 #150
         
-        self.drive(0.33,wz)
+         
+        
+        self.drive(0.37,wz)
         
         rospy.loginfo("angular vel : "+str(wz))
         #Cannot detect ball
@@ -128,6 +138,7 @@ class LineFollow(object):
 def main():
      
      rospy.init_node("line_following_node", anonymous=True)
+     
      line_following_object=LineFollow()
      try:
         rospy.spin()
