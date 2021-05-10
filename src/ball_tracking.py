@@ -31,7 +31,7 @@ class BallTrack(object):
         self.vel.angular.z = wz
 
     def camera_callback(self,data):
-        
+        # Connect ROS with OpenCV via ROS cv_bridge package
         try:
             cv_image=self.bridge.compressed_imgmsg_to_cv2(data,"bgr8")
             self.vel_pub.publish(self.vel)
@@ -43,10 +43,10 @@ class BallTrack(object):
         #blurred = cv2.GaussianBlur(cv_image, (11,11),0)
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV).astype(np.float)      
 
-        lower_yellow = np.array([10,86,86])
-        upper_yellow = np.array([63,255,255])
+        lower_color = np.array([10,86,86])
+        upper_color = np.array([63,255,255])
 
-        mask = cv2.inRange(hsv,lower_yellow,upper_yellow)  
+        mask = cv2.inRange(hsv,lower_color,upper_color)  
 
          #find contour
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -91,13 +91,13 @@ class BallTrack(object):
             hdif = 0
             self.stop()
         elif (object_h_pixel < left_bound and radius > 65):
-            #if (radius > 70 and object_h_pixel < 85):
+            
             vx = 0
             wz = 5.8
             self.drive(vx,wz)
 
         elif (object_h_pixel > right_bound and radius > 65):
-            #if (radius > 70 and object_h_pixel > 325):
+      
             vx = 0
             wz = -5.8
             self.drive(vx,wz)
