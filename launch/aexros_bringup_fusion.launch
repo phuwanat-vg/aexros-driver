@@ -9,7 +9,7 @@
     </node>
 
     <!-- Run aexros robot with rosbots_driver -->
-    <node pkg = "rosbots_driver" type="rosbot.py" name = "rosbot" >
+    <node pkg = "xrosbots_driver" type="rosbot.py" name = "rosbot" >
     </node>
 
     <!-- Odom-IMU Extended Kalman Filter-->

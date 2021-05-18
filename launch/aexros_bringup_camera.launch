@@ -4,7 +4,7 @@
      output="screen" args="/dev/ttyUSB0"/>
 
     <!-- Run aexros robot with rosbots_driver -->
-    <node pkg = "rosbots_driver" type="rosbot.py" name = "rosbot" />
+    <node pkg = "xrosbots_driver" type="rosbot.py" name = "rosbot" />
   
     <!-- Camera Call -->
     <arg name="enable_raw" default="false"/>
@@ -22,8 +22,8 @@
 
         <param name="camera_info_url" value="package://raspicam_node/camera_info/camerav2_410x308.yaml"/>
         <param name="camera_name" value="$(arg camera_name)"/>
-        <param name="width" value="308"/>
-        <param name="height" value="231"/>
+        <param name="width" value="231"/>
+        <param name="height" value="174"/>
 
         <param name="framerate" value="25"/>
         <param name="exposure_mode" value="antishake"/>
