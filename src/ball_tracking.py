@@ -101,16 +101,7 @@ class BallTrack(object):
             vx = 0
             wz = -5.8
             self.drive(vx,wz)
-        else:
-            if (radius<60):
-                vx = 0.45
-                wz = 0
-                self.drive(vx,wz)
-            else:
-                self.stop()
-            
-        
-        
+       
       
         cv2.imshow("Image Window",cv_image)
         cv2.imshow("MASK",mask)
