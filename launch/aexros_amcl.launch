@@ -1,6 +1,6 @@
 <launch>
      <node name = "map_server" pkg = "map_server" type = "map_server"
-      args="$(find aexros_driver)/map/first_floorV1.yaml"/>
+      args="$(find aexros_driver)/map/map.yaml"/>
 
      <include file="$(find amcl)/examples/amcl_diff.launch"/>
 
