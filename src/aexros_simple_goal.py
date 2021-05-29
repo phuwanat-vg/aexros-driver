@@ -4,6 +4,7 @@
 import rospy
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+import geometry_msgs,msg import Point
 
 def movebase_client():
 
@@ -13,8 +14,13 @@ def movebase_client():
     goal = MoveBaseGoal()
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
-    goal.target_pose.pose.position.x = 1.0
-    goal.target_pose.pose.orientation.w = 0.1
+    
+    goal.target_pose.pose.position = Point(1,0,0)
+   
+    goal.target_pose.pose.orientation.x = 0.0
+    goal.target_pose.pose.orientation.y = 0.0
+    goal.target_pose.pose.orientation.z = 0.0
+    goal.target_pose.pose.orientation.w = 1.0
 
     client.send_goal(goal)
     wait = client.wait_for_result()
