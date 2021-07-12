@@ -6,8 +6,8 @@
     <!-- Run aexros robot with rosbots_driver -->
     <node pkg = "xrosbots_driver" type="rosbot.py" name = "rosbot" />
   
-    <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_laser"
-    args="0.0 0.0 0.04255 0.0 0.0  0.0 /base_footprint /base_link 40" />
+    <!--<node pkg="tf" type="static_transform_publisher" name="base_footprint_to_laser"
+    args="0.0 0.0 0.04255 0.0 0.0  0.0 /base_footprint /base_link 40" />-->
     
     
 </launch>

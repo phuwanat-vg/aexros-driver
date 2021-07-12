@@ -2,16 +2,16 @@
 
    <master auto="start"/>
  <!-- Run the map server --> 
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find aexros_driver)/map/mapping2.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find aexros_driver)/map/map_testing.yaml"/>
 
  <!--- Run AMCL --> 
     <include file="$(find amcl)/examples/amcl_diff.launch" />
-    <param name="base_global_planner" value="carrot_planner/CarrotPlanner"/>
+
 
    <node pkg="move_base" type="move_base" respawn="false" name="move_base" args="cmd_vel:=/rosbot/cmd_vel" output="screen">
-    <rosparam file="$(find aexros_driver)/params/global_planner_params.yaml" command="load" />
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
     <rosparam file="$(find aexros_driver)/params/costmap_common_params.yaml" command="load" ns="global_costmap" /> 
-
+    
     <rosparam file="$(find aexros_driver)/params/costmap_common_params.yaml" command="load" ns="local_costmap" />
 
     <rosparam file="$(find aexros_driver)/params/costmap_local_params.yaml" command="load" />
@@ -20,5 +20,6 @@
 
     <rosparam file="$(find aexros_driver)/params/base_local_planner_params.yaml" command="load" />
  </node>
-
+ 
+  
 </launch>
