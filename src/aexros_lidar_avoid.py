@@ -8,11 +8,11 @@ from geometry_msgs.msg import Twist
 
 def laser_callback(msg):
     array_number = len(msg.ranges)
-    r_range = msg.ranges[0:133]
-    fr_range = msg.ranges[134:266]
-    f_range = msg.ranges[237:399]
-    fl_range = msg.ranges[400:532]
-    l_range = msg.ranges[533:665]
+    r_range = msg.ranges[27:160]
+    fr_range = msg.ranges[161:293]
+    f_range = msg.ranges[294:416]
+    fl_range = msg.ranges[417:559]
+    l_range = msg.ranges[560:665]
     
   
     fr = min((min(fr_range for fr_range in fr_range if fr_range > 0)),10)
