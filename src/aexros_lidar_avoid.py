@@ -43,11 +43,11 @@ def avoidance(range_array):
         if range_array['front'] > th and range_array['fleft'] > th and range_array['fright'] > th:
             robot_status = 'Forward'
             linear_x = 0.4
-            angular_z = 0#-5.5
+            angular_z = 0#-0.5
         elif range_array['front'] < th and range_array['fleft'] > th and range_array['fright'] > th:
             robot_status = 'Turn Right'
             linear_x = 0
-            angular_z = 5.5
+            angular_z = 0.5
         elif range_array['front'] > th and range_array['fleft'] > th and range_array['fright'] < th:
             robot_status = 'case 3 - fright'
             linear_x = 0.5
@@ -55,23 +55,23 @@ def avoidance(range_array):
         elif range_array['front'] > th and range_array['fleft'] < th and range_array['fright'] > th:
             robot_status = 'case 4 - fleft'
             linear_x = 0#0.4
-            angular_z = -5.5
+            angular_z = -0.5
         elif range_array['front'] < th and range_array['fleft'] > th and range_array['fright'] < th:
             robot_status = 'case 5 - front and fright'
             linear_x = 0
-            angular_z = 5.5
+            angular_z = 0.5
         elif range_array['front'] < th and range_array['fleft'] < th and range_array['fright'] > th:
             robot_status = 'case 6 - front and fleft'
             linear_x = 0
-            angular_z = 5.5
+            angular_z = 0.5
         elif range_array['front'] < th and range_array['fleft'] < th and range_array['fright'] < th:
             robot_status = 'case 7 - front and fleft and fright'
             linear_x = 0
-            angular_z = 5.5
+            angular_z = 0.5
         elif range_array['front'] > th and range_array['fleft'] < th and range_array['fright'] < th:
             robot_status = 'case 8 - fleft and fright'
             linear_x = 0
-            angular_z = 5.5#-5.5
+            angular_z = 0.5#-0.5
         else:
             robot_status = 'Unknow'
             
