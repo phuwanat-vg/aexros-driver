@@ -192,8 +192,8 @@ void loop()
 {
   if (millis() - timeold >= 100){  /*Uptade every one second, this will be equal to reading frecuency (Hz).*/
  
-   rticks_msg.data = pulse_r;
-   lticks_msg.data = -pulse_l;
+   rticks_msg.data = -pulse_r;
+   lticks_msg.data = pulse_l;
 
    //Publish data
    
