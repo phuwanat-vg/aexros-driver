@@ -81,10 +81,10 @@ ros::Subscriber<std_msgs::Float32> sub_left("wheel_power_left",
                                            &leftWheelCb );
 ros::Subscriber<std_msgs::Int16> sub_servo("servo", &servoCb);
 
-int r_encoder_pinA = A0; //Interrupt1
-int r_encoder_pinB = A1; //Interrupt0
-int l_encoder_pinA = 2;
-int l_encoder_pinB = 3;
+int r_encoder_pinA = 2; //Interrupt1
+int r_encoder_pinB = 3; //Interrupt0
+int l_encoder_pinA = A0;
+int l_encoder_pinB = A1;
 
 volatile int pulse_l=0;
 volatile int pulse_r=0;
