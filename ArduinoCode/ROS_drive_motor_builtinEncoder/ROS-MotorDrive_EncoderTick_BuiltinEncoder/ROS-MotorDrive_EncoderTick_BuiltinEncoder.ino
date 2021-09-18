@@ -168,9 +168,9 @@ void setup()
   pulse_r = 0;
   timeold = 0;
 
-  attachInterrupt(digitalPinToInterrupt(2), counter_l,CHANGE);
+  attachInterrupt(digitalPinToInterrupt(2), counter_r,CHANGE);
  
-  attachPCINT(digitalPinToPCINT(r_encoder_pinA), counter_r, CHANGE);
+  attachPCINT(digitalPinToPCINT(l_encoder_pinA), counter_l, CHANGE);
 
   
   
