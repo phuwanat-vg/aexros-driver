@@ -46,10 +46,10 @@ std_msgs::Int32 lticks_msg;
 std_msgs::Float32 rpm_left_msg;
 std_msgs::Float32 rpm_right_msg;
 
-ros::Publisher rticks_pub("sutrobot1/tick_wheel_right", &rticks_msg);
-ros::Publisher lticks_pub("sutrobot1/tick_wheel_left", &lticks_msg);
-ros::Publisher rpm_left_pub("sutrobot1/rpm_left", &rpm_left_msg);
-ros::Publisher rpm_right_pub("sutrobot1/rpm_right", &rpm_right_msg);
+ros::Publisher rticks_pub("/tick_wheel_right", &rticks_msg);
+ros::Publisher lticks_pub("/tick_wheel_left", &lticks_msg);
+ros::Publisher rpm_left_pub("/rpm_left", &rpm_left_msg);
+ros::Publisher rpm_right_pub("/rpm_right", &rpm_right_msg);
 
 void turnWheelL(float setpoint,long inTick) {
   unsigned int lpwm_value;
@@ -180,11 +180,11 @@ void servoCb( const std_msgs::Int16 &angle)
   }
 }
 
-ros::Subscriber<std_msgs::Float32> sub_right("sutrobot1/wheel_power_right",
+ros::Subscriber<std_msgs::Float32> sub_right("/wheel_power_right",
                                             &rightWheelCb );
-ros::Subscriber<std_msgs::Float32> sub_left("sutrobot1/wheel_power_left",
+ros::Subscriber<std_msgs::Float32> sub_left("/wheel_power_left",
                                            &leftWheelCb );
-ros::Subscriber<std_msgs::Int16> sub_servo("sutrobot1/servo", &servoCb);
+ros::Subscriber<std_msgs::Int16> sub_servo("/servo", &servoCb);
 
 int r_encoder_pinA = 2; //Interrupt1
 int r_encoder_pinB = 3; //Interrupt0
