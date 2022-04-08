@@ -22,7 +22,7 @@ int pos = 0;
 #define R_MOTOR_DIR2 7
 
 /*Left Wheel Control*/
-float PPR = 840.0;
+float PPR = 210;  /* 140 for 225 RPM*/
 float kp = 0.5;
 float ki = 0.05;
 
