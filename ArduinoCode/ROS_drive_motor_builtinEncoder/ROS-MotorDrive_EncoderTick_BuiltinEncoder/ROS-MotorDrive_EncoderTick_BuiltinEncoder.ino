@@ -6,7 +6,6 @@
 #include "PinChangeInterrupt.h"
 #include <Servo.h>    //servo addition
 ros::NodeHandle nh;
-
 int cam_servo_pin = 11;
 Servo cam_servo; //servo add
 int cur_angle;
@@ -22,37 +21,143 @@ int pos = 0;
 #define R_MOTOR_DIR1 10
 #define R_MOTOR_DIR2 7
 
-void turnWheel( const std_msgs::Float32 &wheel_power,
-                unsigned int pwm_pin,
-                unsigned int dir1_pin,
-                unsigned int dir2_pin) {
-    float factor = max(min(wheel_power.data, 1.0f), -1.0f);
-    Serial.print(wheel_power.data);
-    if( factor >= 0 ) {
-        digitalWrite(dir1_pin, LOW);
-        digitalWrite(dir2_pin, HIGH);  
-        analogWrite(pwm_pin, (unsigned int)(255 * factor));
-    } else {
-        digitalWrite(dir1_pin, HIGH);
-        digitalWrite(dir2_pin, LOW);
-        analogWrite(pwm_pin, (unsigned int)(-255 * (1.0f * factor)));
-    }   
+/*Left Wheel Control*/
+float PPR = 840.0;
+float kp = 0.5;
+float ki = 0.05;
+
+unsigned long curTimeL, prevTimeL, diffTimeL;
+long curTickL, prevTickL, diffTickL;
+double errorL,setRPML,lastErrorL,cumErrorL;
+double control_outL;
+double measuredRPML;
+double desiredRPMR,desiredRPML;
+
+/*Right Wheel Control*/
+unsigned long curTimeR, prevTimeR, diffTimeR;
+long curTickR, prevTickR, diffTickR;
+double errorR, setRPMR,lastErrorR,cumErrorR;
+double control_outR;
+double measuredRPMR;
+
+
+std_msgs::Int32 rticks_msg;
+std_msgs::Int32 lticks_msg;
+std_msgs::Float32 rpm_left_msg;
+std_msgs::Float32 rpm_right_msg;
+
+ros::Publisher rticks_pub("sutrobot1/tick_wheel_right", &rticks_msg);
+ros::Publisher lticks_pub("sutrobot1/tick_wheel_left", &lticks_msg);
+ros::Publisher rpm_left_pub("sutrobot1/rpm_left", &rpm_left_msg);
+ros::Publisher rpm_right_pub("sutrobot1/rpm_right", &rpm_right_msg);
+
+void turnWheelL(float setpoint,long inTick) {
+  unsigned int lpwm_value;
+  curTickL = inTick;
+  curTimeL = millis();
+  setRPML = setpoint;
+  diffTickL = curTickL - prevTickL;
+  diffTimeL =  (curTimeL - prevTimeL);
+  measuredRPML = ((diffTickL / PPR) / (diffTimeL * 0.001)) * 60;
+
+  rpm_left_msg.data = measuredRPML;
+
+  if (setRPML >= 0) {
+    errorL = setRPML - measuredRPML;
+  } else if (setRPML < 0) {
+    errorL = -setRPML + measuredRPML;
+  }
+  cumErrorL += errorL * diffTimeL;
+  control_outL = kp * errorL+ ki*cumErrorL;
+
+
+  lastErrorL = errorL;
+
+
+  prevTickL = curTickL;
+  prevTimeL = curTimeL;
+
+  if (setRPML > 0)
+  {
+    digitalWrite(L_MOTOR_DIR1, LOW);
+    digitalWrite(L_MOTOR_DIR2, HIGH);
+    lpwm_value  = control_outL;
+  }
+  else if (setRPML < 0)
+  {
+    digitalWrite(L_MOTOR_DIR1, HIGH);
+    digitalWrite(L_MOTOR_DIR2, LOW);
+    lpwm_value  = control_outL;
+  }
+  else{
+    digitalWrite(L_MOTOR_DIR1, LOW);
+    digitalWrite(L_MOTOR_DIR2, LOW);
+    lpwm_value = 0;
+  }
+  if (lpwm_value < 0) {
+    lpwm_value = 0;
+  }
+  analogWrite(L_MOTOR_PWM, lpwm_value);   
 }
 
-void rightWheelCb( const std_msgs::Float32 &wheel_power ) {
-    //nh.loginfo("Wheel Power - Right");
-    //char result[8];
-    //dtostrf(wheel_power.data, 6, 2, result); 
-    //nh.loginfo(result);
 
-    turnWheel( wheel_power, R_MOTOR_PWM, R_MOTOR_DIR1, R_MOTOR_DIR2 );
+void turnWheelR(float setpoint,long inTick) {
+  unsigned int rpwm_value;
+  curTickR = inTick;
+  curTimeR = millis();
+  setRPMR = setpoint;
+  diffTickR = curTickR - prevTickR;
+  diffTimeR =  (curTimeR - prevTimeR);
+  measuredRPMR = ((diffTickR / PPR) / (diffTimeR * 0.001)) * 60;
+  rpm_right_msg.data = measuredRPMR;
+  if (setRPMR >= 0) {
+    errorR = setRPMR - measuredRPMR;
+  } else if (setRPMR < 0) {
+    errorR = -setRPMR + measuredRPMR;
+  }
+
+  cumErrorR += errorR * diffTimeR;
+  control_outR = kp * errorR+ ki*cumErrorR;
+
+
+  lastErrorR = errorR;
+
+
+  prevTickR = curTickR;
+  prevTimeR = curTimeR;
+
+  if (setRPMR > 0)
+  {
+    digitalWrite(R_MOTOR_DIR1, LOW);
+    digitalWrite(R_MOTOR_DIR2, HIGH);
+    rpwm_value  = control_outR;
+  }
+  else if (setRPMR < 0)
+  {
+    digitalWrite(R_MOTOR_DIR1, HIGH);
+    digitalWrite(R_MOTOR_DIR2, LOW);
+    rpwm_value  = control_outR;
+  }
+  else{
+    digitalWrite(R_MOTOR_DIR1, LOW);
+    digitalWrite(R_MOTOR_DIR2, LOW);
+    rpwm_value = 0;
+  }
+  if (rpwm_value < 0) {
+    rpwm_value = 0;
+  }
+  analogWrite(R_MOTOR_PWM, rpwm_value);   
+}
+void rightWheelCb( const std_msgs::Float32 &wheel_power ) {
+
+
+    desiredRPMR = wheel_power.data;
     
 }
 
 void leftWheelCb( const std_msgs::Float32 &wheel_power ) {
-    //nh.loginfo("Wheel Power - Left");
   
-    turnWheel( wheel_power, L_MOTOR_PWM, L_MOTOR_DIR1, L_MOTOR_DIR2 );
+    desiredRPML = wheel_power.data;
 }
 
 void servoCb( const std_msgs::Int16 &angle)
@@ -75,16 +180,16 @@ void servoCb( const std_msgs::Int16 &angle)
   }
 }
 
-ros::Subscriber<std_msgs::Float32> sub_right("wheel_power_right",
+ros::Subscriber<std_msgs::Float32> sub_right("sutrobot1/wheel_power_right",
                                             &rightWheelCb );
-ros::Subscriber<std_msgs::Float32> sub_left("wheel_power_left",
+ros::Subscriber<std_msgs::Float32> sub_left("sutrobot1/wheel_power_left",
                                            &leftWheelCb );
-ros::Subscriber<std_msgs::Int16> sub_servo("servo", &servoCb);
+ros::Subscriber<std_msgs::Int16> sub_servo("sutrobot1/servo", &servoCb);
 
 int r_encoder_pinA = 2; //Interrupt1
 int r_encoder_pinB = 3; //Interrupt0
-int l_encoder_pinA = A0;
-int l_encoder_pinB = A1;
+int l_encoder_pinA = A1;
+int l_encoder_pinB = A0;
 
 volatile long pulse_l=0;
 volatile long pulse_r=0;
@@ -123,11 +228,6 @@ void counter_r()
 }
 
 
-std_msgs::Int32 rticks_msg;
-std_msgs::Int32 lticks_msg;
-
-ros::Publisher rticks_pub("tick_wheel_right", &rticks_msg);
-ros::Publisher lticks_pub("tick_wheel_left", &lticks_msg);
 
 
 
@@ -180,6 +280,8 @@ void setup()
   nh.subscribe(sub_right);
   nh.subscribe(sub_left);
   nh.subscribe(sub_servo);
+  nh.advertise(rpm_left_pub);
+  nh.advertise(rpm_right_pub);
 
   //nh.advertise(rpm_left_pub);
   //nh.advertise(rpm_right_pub);
@@ -190,6 +292,8 @@ void setup()
 
 void loop()
 {
+  turnWheelR(desiredRPMR,-pulse_r);
+  turnWheelL(desiredRPML,pulse_l);
   if (millis() - timeold >= 100){  /*Uptade every one second, this will be equal to reading frecuency (Hz).*/
  
    rticks_msg.data = -pulse_r;
@@ -199,7 +303,8 @@ void loop()
    
    rticks_pub.publish(&rticks_msg);
    lticks_pub.publish(&lticks_msg);
-
+   rpm_left_pub.publish(&rpm_left_msg);
+   rpm_right_pub.publish(&rpm_right_msg);
    //reset parameter
    timeold = millis();
    //pulse_r = 0;
